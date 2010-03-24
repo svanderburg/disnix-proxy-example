@@ -1,3 +1,4 @@
 #!/bin/bash -e
 
+export PATH=@inetutils@/bin:$PATH
 telnet @helloWorldHostname@ @helloWorldPort@

@@ -14,6 +14,6 @@ rec {
   };
   
   hello_world_client = import ../pkgs/hello-world-client {
-    inherit stdenv;
+    inherit stdenv inetutils;
   };
 }

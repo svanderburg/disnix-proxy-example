@@ -3,6 +3,7 @@ PREFIX = /usr/local
 all:
 	sed -e "s|@helloWorldHostname@|$(helloWorldHostname)|" \
 	    -e "s|@helloWorldPort@|$(helloWorldPort)|" \
+	    -e "s|@inetutils@|$(inetutils)|" \
 	hello-world-client.in > hello-world-client
 
 install:
