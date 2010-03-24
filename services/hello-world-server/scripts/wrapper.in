@@ -1,0 +1,14 @@
+#!/bin/bash -e
+
+export PATH=@PREFIX@/bin:$PATH
+
+case "$1" in
+    activate)
+	nohup hello-world-server @port@ & pid=$!
+	cat $pid > /var/run/$(basename @PREFIX@).pid
+        ;;
+    deactivate)
+        kill $(cat /var/run/@PREFIX@.pid)
+	rm -f /var/run/$(basename @PREFIX@).pid
+        ;;
+esac
