@@ -16,7 +16,7 @@ rec {
     dependsOn = {
       hello_world_server = disnix_tcp_proxy;
     };
-    type = "wrapper";
+    type = "echo";
   };
   
   disnix_tcp_proxy = rec {

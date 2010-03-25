@@ -16,6 +16,6 @@ rec {
     dependsOn = {
       inherit hello_world_server;
     };
-    type = "wrapper";
+    type = "echo";
   };  
 }

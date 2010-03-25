@@ -141,6 +141,6 @@ int main(int argc, char *argv[])
 	close(client_sockfd);
 	client_sockfd = -1;
     }
-    
+    /* Extra stuff */
     return 0;
 }

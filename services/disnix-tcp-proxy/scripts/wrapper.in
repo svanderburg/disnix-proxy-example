@@ -4,8 +4,8 @@ export PATH=@PREFIX@/bin:$PATH
 
 case "$1" in
     activate)
-	nohup disnix-tcp-proxy @srcPort@ @destHostname@ @destPort@ & pid=$!
-	cat $pid > /var/run/$(basename @PREFIX@).pid
+	nohup disnix-tcp-proxy @srcPort@ @destHostname@ @destPort@ > /var/log/$(basename @PREFIX@).log & pid=$!
+	echo $pid > /var/run/$(basename @PREFIX@).pid
         ;;
     deactivate)
         kill $(cat /var/run/@PREFIX@.pid)

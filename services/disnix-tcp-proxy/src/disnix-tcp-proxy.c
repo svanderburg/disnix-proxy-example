@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 		
 	    printf("Admin connection from client\n");
 		
-	    sprintf(msg, "%d\r\n", num_of_connections);
+	    sprintf(msg, "%d", num_of_connections);
 	    if(send(admin_client_sockfd, msg, strlen(msg), 0) < 0)
 	        fprintf(stderr, "Error sending message to admin client: %s\n", strerror(errno));
 		
