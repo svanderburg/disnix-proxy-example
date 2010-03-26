@@ -1,8 +1,8 @@
 all:
-	sed -e "s|@PREFIX@|$(PREFIX)|" \
-	    -e "s|@srcPort@|$(srcPort)|" \
-	    -e "s|@destHostname@|$(destHostname)|" \
-	    -e "s|@destPort@|$(destPort)|" \
+	sed -e "s|@PREFIX@|$(PREFIX)|g" \
+	    -e "s|@srcPort@|$(srcPort)|g" \
+	    -e "s|@destHostname@|$(destHostname)|g" \
+	    -e "s|@destPort@|$(destPort)|g" \
 	wrapper.in > wrapper
 
 clean:

@@ -4,7 +4,7 @@ export PATH=@PREFIX@/bin:$PATH
 
 case "$1" in
     activate)
-	nohup disnix-tcp-proxy @srcPort@ @destHostname@ @destPort@ > /var/log/$(basename @PREFIX@).log & pid=$!
+	nohup disnix-tcp-proxy @srcPort@ @destHostname@ @destPort@ /tmp/disnix-tcp-proxy-@srcPort@.lock > /var/log/$(basename @PREFIX@).log & pid=$!
 	echo $pid > /var/run/$(basename @PREFIX@).pid
         ;;
     deactivate)
@@ -12,10 +12,22 @@ case "$1" in
 	rm -f /var/run/$(basename @PREFIX@).pid
         ;;
     lock)
-        test $(disnix-tcp-proxy-client) = "0"
-	touch /tmp/$(basename @PREFIX@).lock
+    	if [ -f /tmp/disnix-tcp-proxy-@srcPort@.lock ]
+	then
+	    exit 1
+	else
+	    touch /tmp/disnix-tcp-proxy-@srcPort@.lock
+	    
+	    if [ -f /var/run/$(basename @PREFIX@).pid ]
+	    then
+		while [ "$(disnix-tcp-proxy-client)" != "0" ]
+		do
+	    	    sleep 1
+		done
+	    fi
+	fi
         ;;
     unlock)
-        rm -f /tmp/$(basename @PREFIX@).lock
+        rm -f /tmp/disnix-tcp-proxy-@srcPort@.lock
         ;;
 esac

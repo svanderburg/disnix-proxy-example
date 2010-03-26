@@ -33,6 +33,7 @@
 #include <sys/un.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 
 #define BUFFER_SIZE 4096
@@ -44,7 +45,7 @@ int num_of_connections = 0;
 static void print_usage()
 {
     printf("Usage:\n");
-    printf("disnix-proxy source_port destination_hostname destination_port\n");
+    printf("disnix-proxy source_port destination_hostname destination_port lock_filename\n");
 }
 
 static void set_nonblock(int sockfd)
@@ -309,6 +310,19 @@ static void do_proxy(int client_sockfd, int target_sockfd)
     }
 }
 
+static int is_blocking(char *lock_filename)
+{
+    int fd = open(lock_filename, O_RDONLY);
+    
+    if(fd == -1)
+	return FALSE;
+    else
+    {
+	close(fd);
+	return TRUE;
+    }
+}
+
 void cleanup(int signal)
 {
     printf("Cleaning up...\n");
@@ -332,10 +346,11 @@ int main(int argc, char *argv[])
     char *destination_address;
     int destination_port;
     int server_sockfd = -1, client_sockfd = -1, target_sockfd = -1, admin_sockfd = -1, admin_client_sockfd = -1;
+    char *lock_filename;
     
     /* Check parameters */
     
-    if(argc != 4)
+    if(argc != 5)
     {
 	print_usage();
 	_exit(1);
@@ -345,6 +360,7 @@ int main(int argc, char *argv[])
     source_port = atoi(argv[1]);
     destination_address = strdup(argv[2]);
     destination_port = atoi(argv[3]);
+    lock_filename = strdup(argv[4]);
     
     /* Create signal handlers */
     signal(SIGINT, cleanup); /* Event handler for interruption */
@@ -379,7 +395,11 @@ int main(int argc, char *argv[])
 	    admin_client_sockfd = -1;    
 	}
     
-	/* Create client socket if there is an incoming connection */
+	/* If we want to block do not accept any incoming client connections */
+        if(is_blocking(lock_filename))
+	    continue;
+	    
+	/* Create client if there is an incoming connection */
 	if((client_sockfd = wait_for_connection(server_sockfd)) < 0)
 	    continue;
 	    

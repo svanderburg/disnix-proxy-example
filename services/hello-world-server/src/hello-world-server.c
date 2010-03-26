@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 			send(client_sockfd, "Hello world!\r\n", 14, 0);
 		}
 		
+		close(client_sockfd);
 		_exit(0);
 	    }
 	}
