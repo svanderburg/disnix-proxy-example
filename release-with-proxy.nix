@@ -24,11 +24,9 @@ let
       };
 
     doc =
-      { tarball ? jobs.tarball {}
-      , system ? "x86_64-linux"
-      }:
+      { tarball ? jobs.tarball {} }:
       
-      with import nixpkgs { inherit system; };
+      with import nixpkgs {};
       
       releaseTools.nixBuild {
         name = "disnix-proxy-example-doc";
