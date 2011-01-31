@@ -104,4 +104,27 @@ $ disnixos-vm-env -s services-with-proxy.nix -n network.nix -d distribution-with
 			can be performed and thus the locking mechanism cannot be used.
 		</para>
 	</section>
+	
+	<section>
+		<title>Running the system</title>
+		
+		<para>
+			After the system has been deployed, the hello world client can be started from the command-line
+			on the machine on which it is deployed, by typing the following instruction:
+			
+<screen>
+$ /nix/var/nix/profiles/disnix/default/bin/hello-world-client
+</screen>
+
+			By typing: 'hello' the server returns 'Hello world'. By typing 'quit' the clients disconnects.
+		</para>
+		
+		<para>
+			If the system is using the proxy, try to upgrade the system while a client is connected, e.g.
+			by moving the hello world server from one machine to another. You will notice that the upgrade
+			does not start while the client is still connected. If you try to connect to the server with
+			another client, the connection is queued. If you disconnect the client, then the upgrade will
+			start.
+		</para>
+	</section>
 </chapter>
