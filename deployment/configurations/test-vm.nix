@@ -5,10 +5,6 @@
     openssh = {
       enable = true;
     };
-    
-    disnix = {
-      enable = true;
-    };
   };
   
   environment = {
