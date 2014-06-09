@@ -1,19 +1,17 @@
 { nixpkgs ? <nixpkgs>
-, nixos ? <nixos>
+, disnix_proxy_example ? {outPath = ./.; rev = 1234;}
+, officialRelease ? false
+, systems ? [ "i686-linux" "x86_64-linux" ]
 }:
 
 let
+  pkgs = import nixpkgs {};
   
   jobs = rec {
     tarball =
-      { disnix_proxy_example ? {outPath = ./.; rev = 1234;}
-      , officialRelease ? false}:
-    
       let
-        pkgs = import nixpkgs {};
-  
         disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-          inherit nixpkgs nixos;
+          inherit nixpkgs;
         };
       in
       disnixos.sourceTarball {
@@ -24,19 +22,15 @@ let
       };
     
     doc =
-      { tarball ? jobs.tarball {} }:
-      
-      with import nixpkgs {};
-      
-      releaseTools.nixBuild {
+      pkgs.releaseTools.nixBuild {
         name = "disnix-proxy-example-doc";
         version = builtins.readFile ./version;
         src = tarball;
-        buildInputs = [ libxml2 libxslt dblatex tetex ];
+        buildInputs = [ pkgs.libxml2 pkgs.libxslt pkgs.dblatex pkgs.tetex ];
         
         buildPhase = ''
           cd doc
-          make docbookrng=${docbook5}/xml/rng/docbook docbookxsl=${docbook5_xsl}/xml/xsl/docbook
+          make docbookrng=${pkgs.docbook5}/xml/rng/docbook docbookxsl=${pkgs.docbook5_xsl}/xml/xsl/docbook
         '';
         
         checkPhase = "true";
@@ -49,44 +43,42 @@ let
       };
       
     builds =
-      { tarball ? jobs.tarball {}
-      , system ? "x86_64-linux"
-      }:
-      
-      let
-        pkgs = import nixpkgs { inherit system; };
-  
-        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-          inherit nixpkgs nixos system;
-        };
-      in
       {
-        without_proxy = disnixos.buildManifest {
-          name = "disnix-proxy-example-without-proxy";
-          version = builtins.readFile ./version;
-          inherit tarball;
-          servicesFile = "deployment/DistributedDeployment/services-without-proxy.nix";
-          networkFile = "deployment/DistributedDeployment/network.nix";
-          distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
-        };
+        without_proxy = pkgs.lib.genAttrs systems (system:
+          let
+            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+              inherit nixpkgs system;
+            };
+          in
+          disnixos.buildManifest {
+            name = "disnix-proxy-example-without-proxy";
+            version = builtins.readFile ./version;
+            inherit tarball;
+            servicesFile = "deployment/DistributedDeployment/services-without-proxy.nix";
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
+          });
         
-        with_proxy = disnixos.buildManifest {
-          name = "disnix-proxy-example-with-proxy";
-          version = builtins.readFile ./version;
-          inherit tarball;
-          servicesFile = "deployment/DistributedDeployment/services-with-proxy.nix";
-          networkFile = "deployment/DistributedDeployment/network.nix";
-          distributionFile = "deployment/DistributedDeployment/distribution-with-proxy.nix";
-        };
+        with_proxy = pkgs.lib.genAttrs systems (system:
+          let
+            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+              inherit nixpkgs system;
+            };
+          in
+          disnixos.buildManifest {
+            name = "disnix-proxy-example-with-proxy";
+            version = builtins.readFile ./version;
+            inherit tarball;
+            servicesFile = "deployment/DistributedDeployment/services-with-proxy.nix";
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            distributionFile = "deployment/DistributedDeployment/distribution-with-proxy.nix";
+          });
       };
-            
+    
     tests = 
-
       let
-        pkgs = import nixpkgs {};
-  
         disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-          inherit nixpkgs nixos;
+          inherit nixpkgs;
         };
       in
       {
