@@ -11,6 +11,8 @@
     };
   };
   
+  networking.firewall.enable = false;
+  
   environment = {
     systemPackages = [
       pkgs.mc
