@@ -84,12 +84,11 @@ let
       {
         without_proxy = 
           let
-            manifest = (builds { system = "x86_64-linux"; }).without_proxy;
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.without_proxy);
           in
           disnixos.disnixTest {
             name = "disnix-proxy-example-without-proxy-test";
-            tarball = tarball {};
-            inherit manifest;
+            inherit manifest tarball;
             networkFile = "deployment/DistributedDeployment/network.nix";
             testScript =
               ''
@@ -109,12 +108,11 @@ let
         
         with_proxy = 
           let
-            manifest = (builds { system = "x86_64-linux"; }).with_proxy;
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.with_proxy);
           in
           disnixos.disnixTest {
             name = "disnix-proxy-example-with-proxy-test";
-            tarball = tarball {};
-            inherit manifest;
+            inherit manifest tarball;
             networkFile = "deployment/DistributedDeployment/network.nix";
             testScript =
               ''
