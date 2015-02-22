@@ -10,7 +10,7 @@ let
   jobs = rec {
     tarball =
       let
-        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+        disnixos = import "${((import /home/sander/Development/disnixos/release.nix) {}).build.x86_64-linux}/share/disnixos/testing.nix" {
           inherit nixpkgs;
         };
       in
@@ -46,7 +46,7 @@ let
       {
         without_proxy = pkgs.lib.genAttrs systems (system:
           let
-            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+            disnixos = import "${((import /home/sander/Development/disnixos/release.nix) {}).build.x86_64-linux}/share/disnixos/testing.nix" {
               inherit nixpkgs system;
             };
           in
@@ -61,7 +61,7 @@ let
         
         with_proxy = pkgs.lib.genAttrs systems (system:
           let
-            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+            disnixos = import "${((import /home/sander/Development/disnixos/release.nix) {}).build.x86_64-linux}/share/disnixos/testing.nix" {
               inherit nixpkgs system;
             };
           in
@@ -77,7 +77,7 @@ let
     
     tests = 
       let
-        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+        disnixos = import "${((import /home/sander/Development/disnixos/release.nix) {}).build.x86_64-linux}/share/disnixos/testing.nix" {
           inherit nixpkgs;
         };
       in

@@ -1,15 +1,14 @@
 {system, pkgs}:
 
-rec {
-  disnix_tcp_proxy = import ../pkgs/disnix-tcp-proxy {
-    inherit (pkgs) stdenv;
+let
+  callPackage = pkgs.lib.callPackageWith (pkgs // self);
+
+  self = {
+    disnix_tcp_proxy = callPackage ../pkgs/disnix-tcp-proxy { };
+    
+    hello_world_server = callPackage ../pkgs/hello-world-server { };
+    
+    hello_world_client = callPackage ../pkgs/hello-world-client { };
   };
-  
-  hello_world_server = import ../pkgs/hello-world-server {
-    inherit (pkgs) stdenv;
-  };
-  
-  hello_world_client = import ../pkgs/hello-world-client {
-    inherit (pkgs) stdenv inetutils;
-  };
-}
+in
+self
