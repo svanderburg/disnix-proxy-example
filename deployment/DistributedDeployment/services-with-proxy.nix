@@ -1,12 +1,15 @@
 {system, distribution, pkgs}:
 
-let customPkgs = import ../top-level/all-packages.nix { inherit system pkgs; };
+let
+  customPkgs = import ../top-level/all-packages.nix { inherit system pkgs; };
+  portsConfiguration = if builtins.pathExists ./ports.nix then import ./ports.nix else {};
 in
 rec {
   hello_world_server = rec {
     name = "hello_world_server";
     pkg = customPkgs.hello_world_server { inherit port; };
-    port = 5000;
+    port = portsConfiguration.ports.hello_world_server or 0;
+    portAssign = "shared";
     type = "wrapper";
   };
   
@@ -22,7 +25,8 @@ rec {
   disnix_tcp_proxy = rec {
     name = "disnix_tcp_proxy";
     pkg = customPkgs.disnix_tcp_proxy { inherit port; };
-    port = 6000;
+    port = portsConfiguration.ports.disnix_tcp_proxy or 0;
+    portAssign = "shared";
     dependsOn = {
       inherit hello_world_server;
     };
