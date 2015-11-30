@@ -28,6 +28,10 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
+#ifdef SYSTEMD_SOCKET_ACTIVATION
+#include <systemd/sd-daemon.h>
+#endif
+
 #define TRUE 1
 #define FALSE 0
 #define BUFFER_SIZE 1024
@@ -41,31 +45,49 @@ static void print_usage()
 static int create_server_socket(int source_port)
 {
     int sockfd, on = 1;
-    struct sockaddr_in client_addr;
-    
-    /* Create socket */
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(sockfd < 0)
-	fprintf(stderr, "Error creating server socket\n");
 
-    /* Create address struct */
-    memset(&client_addr, '\0', sizeof(client_addr));
-    client_addr.sin_family = AF_INET;
-    client_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    client_addr.sin_port = htons(source_port);
+#ifdef SYSTEMD_SOCKET_ACTIVATION
+    int n = sd_listen_fds(0);
     
-    /* Set socket options to reuse the address */
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, 4);
-    
-    /* Bind the name (ip address) to the socket */
-    if(bind(sockfd, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
-	fprintf(stderr, "Error binding on port: %d, %s\n", source_port, strerror(errno));
-    
-    /* Listen for connections on the socket */
-    if(listen(sockfd, 5) < 0)
-	fprintf(stderr, "Error listening on port %d\n", source_port);
+    if(n > 1)
+    {
+        fprintf(stderr, "Too many file descriptors received!\n");
+        return -1;
+    }
+    else if(n == 1)
+        sockfd = SD_LISTEN_FDS_START + 0;
+    else
+    {
+#endif
+        struct sockaddr_in client_addr;
+        
+        /* Create socket */
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if(sockfd < 0)
+            fprintf(stderr, "Error creating server socket!\n");
+        
+        /* Create address struct */
+        memset(&client_addr, '\0', sizeof(client_addr));
+        client_addr.sin_family = AF_INET;
+        client_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+        client_addr.sin_port = htons(source_port);
+        
+        /* Set socket options to reuse the address */
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, 4);
+        
+        /* Bind the name (ip address) to the socket */
+        if(bind(sockfd, (struct sockaddr *)&client_addr, sizeof(client_addr)) < 0)
+            fprintf(stderr, "Error binding on port: %d, %s\n", source_port, strerror(errno));
+        
+        /* Listen for connections on the socket */
+        if(listen(sockfd, 5) < 0)
+            fprintf(stderr, "Error listening on port %d\n", source_port);
 
-    /* Return the socket filedescriptor */
+#ifdef SYSTEMD_SOCKET_ACTIVATION
+    }
+#endif
+
+    /* Return the socket file descriptor */
     return sockfd;
 }
 
@@ -125,7 +147,7 @@ int main(int argc, char *argv[])
 		
 		while((line_size = recv(client_sockfd, line, BUFFER_SIZE - 1, 0)) > 0)
 		{
-		    line[line_size] = '\0';		    
+		    line[line_size] = '\0';
 		    printf("Received: %s\n", line);
 		    
 		    if(strcmp(line, "quit\r\n") == 0)

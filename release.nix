@@ -52,6 +52,21 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-with-proxy.nix";
           });
+        
+        with_socketactivation = pkgs.lib.genAttrs systems (system:
+          let
+            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+              inherit nixpkgs system;
+            };
+          in
+          disnixos.buildManifest {
+            name = "disnix-proxy-example-with-socketactivation";
+            version = builtins.readFile ./version;
+            inherit tarball;
+            servicesFile = "deployment/DistributedDeployment/services-with-socketactivation.nix";
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
+          });
       };
     
     tests = 
@@ -101,6 +116,30 @@ let
                 my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
                 my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client || exit 0");
             
+                if ($result =~ /Hello world/) {
+                    print "Output contains: Hello world!\n";
+                } else {
+                    die "Output should contain: Hello world!\n";
+                }
+              '';
+          };
+          
+        with_socketactivation =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.with_socketactivation);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-with-socketactivation-test";
+            inherit manifest tarball;
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            testScript =
+              ''
+                # Check whether a connection can be established between client and
+                # server. This test should succeed.
+              
+                my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
+                my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client || exit 0");
+              
                 if ($result =~ /Hello world/) {
                     print "Output contains: Hello world!\n";
                 } else {
