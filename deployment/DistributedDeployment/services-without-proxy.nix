@@ -10,7 +10,7 @@ rec {
     pkg = customPkgs.hello_world_server { inherit port; };
     port = portsConfiguration.ports.hello_world_server or 0;
     portAssign = "shared";
-    type = "wrapper";
+    type = "process";
   };
   
   hello_world_client = {

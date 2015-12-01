@@ -1,11 +1,11 @@
 all:
 	sed -e "s|@PREFIX@|$(PREFIX)|" \
 	    -e "s|@port@|$(port)|" \
-	wrapper.in > wrapper
+	process.in > process
 
 clean:
-	rm -f wrapper
+	rm -f process
 
 install:
 	install -d -m755 $(PREFIX)/bin
-	install -m755 wrapper $(PREFIX)/bin
+	install -m755 process $(PREFIX)/bin

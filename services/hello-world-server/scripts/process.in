@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+exec @PREFIX@/bin/hello-world-server @port@

@@ -11,11 +11,17 @@ stdenv.mkDerivation {
   buildPhase = "make ${makeFlags}";
   installPhase = ''
     make ${makeFlags} install
+    
+    mkdir -p $out/etc
+    cat > $out/etc/process_config <<EOF
+    container_process=$out/bin/process
+    EOF
+    
     ${stdenv.lib.optionalString enableSystemdSocketActivation ''
       mkdir -p $out/etc
       cat > $out/etc/socket <<EOF
       [Unit]
-      Description=Server socket that the hello world services listens to
+      Description=Hello world server socket
       
       [Socket]
       ListenStream=${toString port}
