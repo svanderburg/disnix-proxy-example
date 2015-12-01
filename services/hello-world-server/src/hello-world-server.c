@@ -36,6 +36,29 @@
 #define FALSE 0
 #define BUFFER_SIZE 1024
 
+#ifdef SELF_TERMINATION
+#include <signal.h>
+#include <sys/wait.h>
+
+/* Counts the amount of open connections */
+volatile unsigned int num_of_connections = 0;
+
+void sigreap(int sig)
+{
+    pid_t pid;
+    int status;
+    num_of_connections--;
+    
+    signal(SIGCHLD, sigreap); /* Event handler when a child terminates */
+    
+    while((pid = waitpid(-1, &status, WNOHANG)) > 0); /* Wait until all child processes terminate */
+    
+    /* If there are no open connections => self terminate */
+    if(num_of_connections == 0)
+        _exit(0);
+}
+#endif
+
 static void print_usage()
 {
     printf("Usage:\n");
@@ -130,6 +153,10 @@ int main(int argc, char *argv[])
     
     /* Create server socket */
     server_sockfd = create_server_socket(source_port);
+    
+#ifdef SELF_TERMINATION
+    signal(SIGCHLD, sigreap); /* Event handler when a child terminates */
+#endif
 
     while(TRUE)
     {
@@ -137,7 +164,9 @@ int main(int argc, char *argv[])
 	if((client_sockfd = wait_for_connection(server_sockfd)) >= 0)
 	{
 	    /* Fork a new process for each incoming client */
-	    if(fork() == 0)
+	    pid_t pid = fork();
+	    
+	    if(pid == 0)
 	    {
 		char line[BUFFER_SIZE];
 		ssize_t line_size;
@@ -159,6 +188,12 @@ int main(int argc, char *argv[])
 		close(client_sockfd);
 		_exit(0);
 	    }
+	    else if(pid == -1)
+	        fprintf(stderr, "Cannot fork connection handling process!\n");
+#ifdef SELF_TERMINATION
+	    else
+	        num_of_connections++;
+#endif
 	}
 	
 	close(client_sockfd);

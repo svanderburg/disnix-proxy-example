@@ -134,6 +134,9 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             testScript =
               ''
+                # Check whether the hello server is not running
+                $test1->mustFail("pgrep hello-world-server");
+                
                 # Check whether a connection can be established between client and
                 # server. This test should succeed.
               
@@ -145,6 +148,9 @@ let
                 } else {
                     die "Output should contain: Hello world!\n";
                 }
+                
+                # The hello world server should have self terminated because no client has been connected to it
+                $test1->mustFail("pgrep hello-world-server");
               '';
           };
         };

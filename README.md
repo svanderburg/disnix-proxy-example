@@ -4,7 +4,7 @@ This is a trivial example case to demonstrate how upgrades can be made completel
 atomic by means of a TCP proxy. The example system consists of a very simple
 server and client communicating through a TCP socket.
 
-By using an alternative composition, the proxy is being used for communication
+By using an alternative composition, a proxy is being used for communication
 between the server and client, which is notified by Disnix before the upgrade
 starts. The proxy then drains connections during the upgrade. In this phase,
 Disnix waits until there are no activate connections before it starts the actual
@@ -13,6 +13,9 @@ upgrade.
 New connections made by a client during this phase are queued. If there are no
 activate connections the upgrade starts. After the upgrade the proxy is notified
 to accept connections again.
+
+We can also deploy a variant of the system in which the server is activated on
+demand and self terminates if there are no open connections.
 
 Architecture
 ============
@@ -31,8 +34,10 @@ upgrade completely atomic.
 
 Usage
 =====
-This example comes in two variants. You can either deploy the server and client
-with or without proxy. There are three ways to try to deploy this example.
+This example comes in three variants. You can either deploy the server and
+client with or without proxy. There are three ways to try to deploy this
+example.
+
 The `deployment/DistributedDeployment` folder contains all
 neccessary Disnix models, such as a services, infrastructure and distribution
 models required for deployment.
@@ -53,6 +58,14 @@ The variant without proxy can be deployed by running the following command:
 The variant with proxy can be deployed by running the following command:
 
     $ disnix-env -s services-with-proxy.nix -i infrastructure.nix -d distribution-with-proxy.nix
+
+The variant supporting systemd socket activation and self termination can be
+deployed by running the following command:
+
+    $ disnix-env -s services-with-socketactivation.nix -i infrastructure.nix -d distribution-without-proxy.nix
+
+The above example only works on Linux distributions having systemd as its
+service manager.
 
 Hybrid deployment of NixOS infrastructure and services using DisnixOS
 ---------------------------------------------------------------------
@@ -75,6 +88,10 @@ The following instruction deploys the variant with a proxy:
 
     $ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
 
+The variant with socket activation can be deployed as follows:
+
+    $ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
+
 Deployment using the NixOS test driver
 --------------------------------------
 This system can be deployed without adapting any of the models in
@@ -87,6 +104,10 @@ By running the following instruction, the variant with proxy can be deployed in 
 network of virtual machines:
 
     $ disnixos-vm-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
+
+The variant with socket activation can be deployed as follows:
+
+    $ disnixos-vm-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
 
 The disadvantage of using the virtualization extension is that no upgrades can be
 performed and thus the locking mechanism cannot be used.
@@ -110,6 +131,11 @@ The variant with proxy can be deployed by running the following commands:
 
     $ export NIXOPS_DEPLOYMENT=vboxtest
     $ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix --use-nixops
+
+The socket activation variant can be deployed as follows:
+
+    $ export NIXOPS_DEPLOYMENT=vboxtest
+    $ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix --use-nixops
 
 Running the system
 ==================

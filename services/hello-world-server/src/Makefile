@@ -1,7 +1,7 @@
 CC = gcc
 
 ifeq ($(SYSTEMD_SOCKET_ACTIVATION),1)
-    EXTRA_BUILDFLAGS=-DSYSTEMD_SOCKET_ACTIVATION=1 $(shell pkg-config --cflags --libs libsystemd)
+    EXTRA_BUILDFLAGS=-DSYSTEMD_SOCKET_ACTIVATION=1 -DSELF_TERMINATION=1 $(shell pkg-config --cflags --libs libsystemd)
 endif
 
 all:
