@@ -1,4 +1,4 @@
-{system, distribution, pkgs}:
+{system, distribution, invDistribution, pkgs}:
 
 let
   customPkgs = import ../top-level/all-packages.nix { inherit system pkgs; };
