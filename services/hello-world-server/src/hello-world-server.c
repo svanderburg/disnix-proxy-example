@@ -87,7 +87,10 @@ static int create_server_socket(int source_port)
         /* Create socket */
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if(sockfd < 0)
+        {
             fprintf(stderr, "Error creating server socket!\n");
+            return -1;
+        }
         
         /* Create address struct */
         memset(&client_addr, '\0', sizeof(client_addr));
