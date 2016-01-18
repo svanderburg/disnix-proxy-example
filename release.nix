@@ -74,6 +74,20 @@ let
         disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
           inherit nixpkgs;
         };
+        
+        testScript = {manifest}: ''
+          # Check whether a connection can be established between client and
+          # server. This test should succeed.
+        
+          my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
+          my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client");
+        
+          if ($result =~ /Hello world/) {
+              print "Output contains: Hello world!\n";
+          } else {
+              die "Output should contain: Hello world!\n";
+          }
+        '';
       in
       {
         without_proxy = 
@@ -84,20 +98,7 @@ let
             name = "disnix-proxy-example-without-proxy-test";
             inherit manifest tarball;
             networkFile = "deployment/DistributedDeployment/network.nix";
-            testScript =
-              ''
-                # Check whether a connection can be established between client and
-                # server. This test should succeed.
-              
-                my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
-                my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client || exit 0");
-              
-                if ($result =~ /Hello world/) {
-                    print "Output contains: Hello world!\n";
-                } else {
-                    die "Output should contain: Hello world!\n";
-                }
-              '';
+            testScript = testScript { inherit manifest; };
           };
         
         with_proxy = 
@@ -108,20 +109,7 @@ let
             name = "disnix-proxy-example-with-proxy-test";
             inherit manifest tarball;
             networkFile = "deployment/DistributedDeployment/network.nix";
-            testScript =
-              ''
-                # Check whether a connection can be established between client and
-                # server. This test should succeed.
-            
-                my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
-                my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client || exit 0");
-            
-                if ($result =~ /Hello world/) {
-                    print "Output contains: Hello world!\n";
-                } else {
-                    die "Output should contain: Hello world!\n";
-                }
-              '';
+            testScript = testScript { inherit manifest; };
           };
           
         with_socketactivation =
@@ -132,26 +120,7 @@ let
             name = "disnix-proxy-example-with-socketactivation-test";
             inherit manifest tarball;
             networkFile = "deployment/DistributedDeployment/network.nix";
-            testScript =
-              ''
-                # Check whether the hello server is not running
-                $test1->mustFail("pgrep hello-world-server");
-                
-                # Check whether a connection can be established between client and
-                # server. This test should succeed.
-              
-                my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
-                my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client || exit 0");
-              
-                if ($result =~ /Hello world/) {
-                    print "Output contains: Hello world!\n";
-                } else {
-                    die "Output should contain: Hello world!\n";
-                }
-                
-                # The hello world server should have self terminated because no client has been connected to it
-                $test1->mustFail("pgrep hello-world-server");
-              '';
+            testScript = testScript { inherit manifest; };
           };
         };
     };
