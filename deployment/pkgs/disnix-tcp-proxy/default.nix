@@ -3,7 +3,7 @@
 {hello_world_server}:
 
 let 
-  makeFlags = "PREFIX=$out srcPort=${toString port} destHostname=${hello_world_server.target.hostname} destPort=${toString (hello_world_server.port)}";
+  makeFlags = "PREFIX=$out srcPort=${toString port} destHostname=${hello_world_server.target.properties.hostname} destPort=${toString (hello_world_server.port)}";
 in
 stdenv.mkDerivation {
   name = "disnix-tcp-proxy";
