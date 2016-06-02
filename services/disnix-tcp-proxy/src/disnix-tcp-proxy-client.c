@@ -25,6 +25,7 @@
 #include <sys/un.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <errno.h>
 #define BUFFER_SIZE 1024
 
