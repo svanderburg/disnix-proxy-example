@@ -80,7 +80,7 @@ let
           # server. This test should succeed.
         
           my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
-          my $result = $test2->mustSucceed("(echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client");
+          my $result = $test2->mustSucceed("sleep 10; (echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client");
         
           if ($result =~ /Hello world/) {
               print "Output contains: Hello world!\n";
