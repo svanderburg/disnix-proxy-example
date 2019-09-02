@@ -6,7 +6,7 @@
 
 let
   pkgs = import nixpkgs {};
-  
+
   jobs = rec {
     tarball =
       let
@@ -20,7 +20,7 @@ let
         src = disnix_proxy_example;
         inherit officialRelease;
       };
-    
+
     builds =
       {
         without_proxy = pkgs.lib.genAttrs systems (system:
@@ -37,7 +37,7 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
           });
-        
+
         with_proxy = pkgs.lib.genAttrs systems (system:
           let
             disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
@@ -52,7 +52,7 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-with-proxy.nix";
           });
-        
+
         with_socketactivation = pkgs.lib.genAttrs systems (system:
           let
             disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
@@ -68,20 +68,22 @@ let
             distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
           });
       };
-    
-    tests = 
+
+    tests =
       let
         disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
           inherit nixpkgs;
         };
-        
+
         testScript = {manifest}: ''
           # Check whether a connection can be established between client and
           # server. This test should succeed.
-        
-          my $hello_world_client = $test2->mustSucceed("${pkgs.libxslt}/bin/xsltproc ${./extractservices.xsl} ${manifest}/manifest.xml | grep hello-world-client");
+
+          my $hello_world_client_value = $test2->mustSucceed("${pkgs.libxml2}/bin/xmllint --xpath \"/manifest/services/service[name='hello_world_client']/pkg\" ${manifest}/manifest.xml");
+          my $hello_world_client = substr $hello_world_client_value, 5, -6;
+
           my $result = $test2->mustSucceed("sleep 10; (echo 'hello'; sleep 10) | ".substr($hello_world_client, 0, -1)."/bin/hello-world-client");
-        
+
           if ($result =~ /Hello world/) {
               print "Output contains: Hello world!\n";
           } else {
@@ -90,7 +92,7 @@ let
         '';
       in
       {
-        without_proxy = 
+        without_proxy =
           let
             manifest = builtins.getAttr (builtins.currentSystem) (builds.without_proxy);
           in
@@ -100,8 +102,8 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             testScript = testScript { inherit manifest; };
           };
-        
-        with_proxy = 
+
+        with_proxy =
           let
             manifest = builtins.getAttr (builtins.currentSystem) (builds.with_proxy);
           in
@@ -111,7 +113,7 @@ let
             networkFile = "deployment/DistributedDeployment/network.nix";
             testScript = testScript { inherit manifest; };
           };
-          
+
         with_socketactivation =
           let
             manifest = builtins.getAttr (builtins.currentSystem) (builds.with_socketactivation);
