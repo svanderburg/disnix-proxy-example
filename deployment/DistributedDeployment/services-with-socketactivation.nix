@@ -1,7 +1,17 @@
-{system, distribution, invDistribution, pkgs}:
+{ system, distribution, invDistribution, pkgs
+, stateDir ? "/var"
+, runtimeDir ? "${stateDir}/run"
+, logDir ? "${stateDir}/log"
+, cacheDir ? "${stateDir}/cache"
+, tmpDir ? (if stateDir == "/var" then "/tmp" else "${stateDir}/tmp")
+, forceDisableUserChange ? false
+}:
 
 let
-  customPkgs = import ../top-level/all-packages.nix { inherit system pkgs; };
+  customPkgs = import ../top-level/all-packages.nix {
+    inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange;
+    processManager = "systemd"; # Harcoded systemd, because nothing in this example will work with another process manager
+  };
   portsConfiguration = if builtins.pathExists ./ports.nix then import ./ports.nix else {};
 in
 rec {
@@ -13,7 +23,7 @@ rec {
     };
     port = portsConfiguration.ports.hello_world_server or 0;
     portAssign = "shared";
-    type = "process";
+    type = "systemd-unit";
   };
   
   hello_world_client = {
@@ -22,6 +32,6 @@ rec {
     dependsOn = {
       inherit hello_world_server;
     };
-    type = "echo";
+    type = "package";
   };
 }

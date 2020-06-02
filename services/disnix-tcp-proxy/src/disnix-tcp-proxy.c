@@ -42,7 +42,7 @@
 
 int num_of_connections = 0;
 
-static void print_usage()
+static void print_usage(void)
 {
     printf("Usage:\n");
     printf("disnix-proxy source_port destination_hostname destination_port lock_filename\n");
@@ -188,7 +188,7 @@ static int open_remote_host(char *host, int port)
     set_nonblock(target_sockfd);
 
     /* Return the socket filedescriptor */
-    return target_sockfd;    
+    return target_sockfd;
 }
 
 static int mywrite(int fd, char *buf, int *len)

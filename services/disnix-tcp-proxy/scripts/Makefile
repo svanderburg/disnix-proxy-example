@@ -1,8 +1,7 @@
 all:
 	sed -e "s|@PREFIX@|$(PREFIX)|g" \
+	    -e "s|@DYSNOMIA_MODULE@|$(DYSNOMIA_MODULE)|g" \
 	    -e "s|@srcPort@|$(srcPort)|g" \
-	    -e "s|@destHostname@|$(destHostname)|g" \
-	    -e "s|@destPort@|$(destPort)|g" \
 	wrapper.in > wrapper
 
 clean:
