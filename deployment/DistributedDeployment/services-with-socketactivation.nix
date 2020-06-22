@@ -10,7 +10,7 @@
 let
   customPkgs = import ../top-level/all-packages.nix {
     inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange;
-    processManager = "systemd"; # Harcoded systemd, because nothing in this example will work with another process manager
+    processManager = "systemd"; # Hardcoded systemd, because nothing in this example will work with another process manager
   };
   portsConfiguration = if builtins.pathExists ./ports.nix then import ./ports.nix else {};
 in
