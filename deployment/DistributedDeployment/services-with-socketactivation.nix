@@ -5,11 +5,12 @@
 , cacheDir ? "${stateDir}/cache"
 , tmpDir ? (if stateDir == "/var" then "/tmp" else "${stateDir}/tmp")
 , forceDisableUserChange ? false
+, nix-processmgmt ? ../../../nix-processmgmt
 }:
 
 let
   customPkgs = import ../top-level/all-packages.nix {
-    inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange;
+    inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange nix-processmgmt;
     processManager = "systemd"; # Hardcoded systemd, because nothing in this example will work with another process manager
   };
 

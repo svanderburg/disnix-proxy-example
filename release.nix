@@ -1,5 +1,6 @@
 { nixpkgs ? <nixpkgs>
-, disnix_proxy_example ? {outPath = ./.; rev = 1234;}
+, disnix_proxy_example ? { outPath = ./.; rev = 1234; }
+, nix-processmgmt ? { outPath = ../nix-processmgmt; rev = 1234; }
 , officialRelease ? false
 , systems ? [ "i686-linux" "x86_64-linux" ]
 }:
@@ -21,6 +22,9 @@ let
     };
 
     builds =
+      let
+        extraParams = { inherit nix-processmgmt; };
+      in
       {
         without_proxy = pkgs.lib.genAttrs systems (system:
           let
@@ -30,7 +34,7 @@ let
           in
           disnixos.buildManifest {
             name = "disnix-proxy-example-without-proxy";
-            inherit tarball version;
+            inherit tarball version extraParams;
             servicesFile = "deployment/DistributedDeployment/services-without-proxy.nix";
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
@@ -44,7 +48,7 @@ let
           in
           disnixos.buildManifest {
             name = "disnix-proxy-example-with-proxy";
-            inherit tarball version;
+            inherit tarball version extraParams;
             servicesFile = "deployment/DistributedDeployment/services-with-proxy.nix";
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-with-proxy.nix";
@@ -58,7 +62,7 @@ let
           in
           disnixos.buildManifest {
             name = "disnix-proxy-example-with-socketactivation";
-            inherit tarball version;
+            inherit tarball version extraParams;
             servicesFile = "deployment/DistributedDeployment/services-with-socketactivation.nix";
             networkFile = "deployment/DistributedDeployment/network.nix";
             distributionFile = "deployment/DistributedDeployment/distribution-without-proxy.nix";
@@ -76,8 +80,10 @@ let
           )
           hello_world_client = hello_world_client_value[5:-6]
 
-          result = test.succeed(
-              "sleep 10; (echo 'hello'; sleep 10) | {}/bin/hello-world-client".format(hello_world_client[:-1])
+          result = test2.succeed(
+              "sleep 10; (echo 'hello'; sleep 10) | {}/bin/hello-world-client".format(
+                  hello_world_client[:-1]
+              )
           )
 
           if "Hello world" in result:
@@ -87,29 +93,38 @@ let
         '';
       in
       {
-        without_proxy = disnixos.disnixTest rec {
-          name = "disnix-proxy-example-without-proxy-test";
-          manifest = builtins.getAttr (builtins.currentSystem) (builds.without_proxy);
-          inherit tarball;
-          networkFile = "deployment/DistributedDeployment/network.nix";
-          testScript = testScript { inherit manifest; };
-        };
+        without_proxy =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.without_proxy);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-without-proxy-test";
+            inherit tarball manifest;
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            testScript = testScript { inherit manifest; };
+          };
 
-        with_proxy = disnixos.disnixTest rec {
-          name = "disnix-proxy-example-with-proxy-test";
-          manifest = builtins.getAttr (builtins.currentSystem) (builds.with_proxy);
-          inherit tarball;
-          networkFile = "deployment/DistributedDeployment/network.nix";
-          testScript = testScript { inherit manifest; };
-        };
+        with_proxy =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.with_proxy);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-with-proxy-test";
+            inherit tarball manifest;
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            testScript = testScript { inherit manifest; };
+          };
 
-        with_socketactivation = disnixos.disnixTest rec {
-          name = "disnix-proxy-example-with-socketactivation-test";
-          manifest = builtins.getAttr (builtins.currentSystem) (builds.with_socketactivation);
-          inherit tarball;
-          networkFile = "deployment/DistributedDeployment/network.nix";
-          testScript = testScript { inherit manifest; };
-        };
+        with_socketactivation =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.with_socketactivation);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-with-socketactivation-test";
+            inherit tarball manifest;
+            networkFile = "deployment/DistributedDeployment/network.nix";
+            testScript = testScript { inherit manifest; };
+          };
       };
     };
 in

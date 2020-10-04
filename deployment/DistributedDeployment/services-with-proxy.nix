@@ -6,16 +6,17 @@
 , tmpDir ? (if stateDir == "/var" then "/tmp" else "${stateDir}/tmp")
 , forceDisableUserChange ? false
 , processManager ? "systemd"
+, nix-processmgmt ? ../../../nix-processmgmt
 }:
 
 let
   customPkgs = import ../top-level/all-packages.nix {
-    inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange processManager;
+    inherit system pkgs stateDir logDir runtimeDir tmpDir forceDisableUserChange processManager nix-processmgmt;
   };
 
   ids = if builtins.pathExists ./ids.nix then (import ./ids.nix).ids else {};
 
-  processType = import ../../../nix-processmgmt/nixproc/derive-dysnomia-process-type.nix {
+  processType = import "${nix-processmgmt}/nixproc/derive-dysnomia-process-type.nix" {
     inherit processManager;
   };
 in
