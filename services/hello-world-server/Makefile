@@ -1,19 +1,16 @@
-PREFIX = /usr/local
+CC = gcc
 
-SUBDIRS=src \
-	scripts
+ifeq ($(SYSTEMD_SOCKET_ACTIVATION),1)
+    EXTRA_BUILDFLAGS=-DSYSTEMD_SOCKET_ACTIVATION=1 -DSELF_TERMINATION=1 $(shell pkg-config --cflags --libs libsystemd)
+endif
 
 all:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
+	$(CC) $(EXTRA_BUILDFLAGS) hello-world-server.c -o hello-world-server
+
+install: all
+	install -d -m755 $(PREFIX)/bin
+	install -m755 hello-world-server $(PREFIX)/bin
 
 clean:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
-
-install:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
+	rm -f *.o
+	rm -f hello-world-server

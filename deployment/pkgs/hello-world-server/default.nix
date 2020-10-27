@@ -2,7 +2,7 @@
 {port, enableSystemdSocketActivation ? false}:
 
 let
-  makeFlags = "PREFIX=$out port=${toString port}${stdenv.lib.optionalString enableSystemdSocketActivation " SYSTEMD_SOCKET_ACTIVATION=1"}";
+  makeFlags = "PREFIX=$out${stdenv.lib.optionalString enableSystemdSocketActivation " SYSTEMD_SOCKET_ACTIVATION=1"}";
 
   hello-world-service = stdenv.mkDerivation {
     name = "hello-world-server";

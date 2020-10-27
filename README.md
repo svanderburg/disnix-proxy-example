@@ -38,9 +38,18 @@ This example comes in three variants. You can either deploy the server and
 client with or without proxy. There are three ways to try to deploy this
 example.
 
-The `deployment/DistributedDeployment` folder contains all
-neccessary Disnix models, such as a services, infrastructure and distribution
-models required for deployment.
+Moreover, there are two kinds of deployment recipes containing all neccessary
+Disnix models, such as a services, infrastructure and distribution models
+required for deployment:
+
+* The `deployment-simple/DistributedDeployment` folder contains simple recipes
+  that work with any basic installation of Disnix on any system. It uses the
+  `process` Dysnomia module to manage the process life-cycles.
+* The `deployment/DistributedDeployment` folder contains more advanced recipes
+  using the experimental
+  [nix-processmgmt](https://github.com/svanderburg/nix-processmgmt) framework
+  that can work with all kinds of process managers, such as sysvinit, systemd,
+  launchd and supervisord.
 
 Deployment using Disnix in a heterogeneous network
 --------------------------------------------------
@@ -53,16 +62,22 @@ machines.
 
 The variant without proxy can be deployed by running the following command:
 
-    $ disnix-env -s services-without-proxy.nix -i infrastructure.nix -d distribution-without-proxy.nix
+```bash
+$ disnix-env -s services-without-proxy.nix -i infrastructure.nix -d distribution-without-proxy.nix
+```
 
 The variant with proxy can be deployed by running the following command:
 
-    $ disnix-env -s services-with-proxy.nix -i infrastructure.nix -d distribution-with-proxy.nix
+```bash
+$ disnix-env -s services-with-proxy.nix -i infrastructure.nix -d distribution-with-proxy.nix
+```
 
 The variant supporting systemd socket activation and self termination can be
 deployed by running the following command:
 
-    $ disnix-env -s services-with-socketactivation.nix -i infrastructure.nix -d distribution-without-proxy.nix
+```bash
+$ disnix-env -s services-with-socketactivation.nix -i infrastructure.nix -d distribution-without-proxy.nix
+```
 
 The above example only works on Linux distributions having systemd as its
 service manager.
@@ -73,7 +88,9 @@ For this scenario you need to install a network of NixOS machines, running the
 Disnix service. This can be done by enabling the following configuration option
 in each `/etc/nixos/configuration.nix` file:
 
-    $ services.disnix.enable = true;
+```bash
+$ services.disnix.enable = true;
+```
 
 You may also need to adapt the NixOS configurations to which the `network.nix`
 model is referring, so that they will match the actual system configurations.
@@ -82,15 +99,21 @@ The system including its underlying infrastructure can be deployed by using the
 `disnixos-env` command. The following instruction deploys the variant without a
 proxy:
 
-    $ disnixos-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix
+```bash
+$ disnixos-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix
+```
 
 The following instruction deploys the variant with a proxy:
 
-    $ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
+```bash
+$ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
+```
 
 The variant with socket activation can be deployed as follows:
 
-    $ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
+```bash
+$ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
+```
 
 Deployment using the NixOS test driver
 --------------------------------------
@@ -98,16 +121,22 @@ This system can be deployed without adapting any of the models in
 `deployment/DistributedDeployment`. By running the following instruction, the
 variant without the proxy can be deployed in a network of virtual machines:
 
-    $ disnixos-vm-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix
+```bash
+$ disnixos-vm-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix
+```
 
 By running the following instruction, the variant with proxy can be deployed in a
 network of virtual machines:
 
-    $ disnixos-vm-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
+```bash
+$ disnixos-vm-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix
+```
 
 The variant with socket activation can be deployed as follows:
 
-    $ disnixos-vm-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
+```bash
+$ disnixos-vm-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix
+```
 
 The disadvantage of using the virtualization extension is that no upgrades can be
 performed and thus the locking mechanism cannot be used.
@@ -119,23 +148,31 @@ let Disnix do the deployment of the services to these machines.
 
 A virtualbox network can be deployed as follows:
 
-    $ nixops create ./network.nix ./network-virtualbox.nix -d vboxtest
-    $ nixops deploy -d vboxtest
+```bash
+$ nixops create ./network.nix ./network-virtualbox.nix -d vboxtest
+$ nixops deploy -d vboxtest
+```
 
 The services without proxy can be deployed by running the following commands:
 
-    $ export NIXOPS_DEPLOYMENT=vboxtest
-    $ disnixos-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix --use-nixops
+```bash
+$ export NIXOPS_DEPLOYMENT=vboxtest
+$ disnixos-env -s services-without-proxy.nix -n network.nix -d distribution-without-proxy.nix --use-nixops
+```
 
 The variant with proxy can be deployed by running the following commands:
 
-    $ export NIXOPS_DEPLOYMENT=vboxtest
-    $ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix --use-nixops
+```bash
+$ export NIXOPS_DEPLOYMENT=vboxtest
+$ disnixos-env -s services-with-proxy.nix -n network.nix -d distribution-with-proxy.nix --use-nixops
+```
 
 The socket activation variant can be deployed as follows:
 
-    $ export NIXOPS_DEPLOYMENT=vboxtest
-    $ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix --use-nixops
+```bash
+$ export NIXOPS_DEPLOYMENT=vboxtest
+$ disnixos-env -s services-with-socketactivation.nix -n network.nix -d distribution-without-proxy.nix --use-nixops
+```
 
 Running the system
 ==================
@@ -143,7 +180,9 @@ After the system has been deployed, the hello world client can be started from
 the command-line to the machine on which it is deployed, by typing the following
 instruction:
 
-    $ /nix/var/nix/profiles/disnix/default/bin/hello-world-client
+```bash
+$ /nix/var/nix/profiles/disnix/default/bin/hello-world-client
+```
 
 By typing: 'hello' the server returns 'Hello world'. By typing 'quit' the clients
 disconnects.

@@ -3,7 +3,7 @@
 {hello_world_server}:
 
 let
-  makeFlags = "PREFIX=$out DYSNOMIA_MODULE=${dysnomia}/libexec/dysnomia/${processType} srcPort=${toString port} destHostname=${hello_world_server.target.properties.hostname} destPort=${toString (hello_world_server.port)}";
+  makeFlags = "PREFIX=$out";
 
   disnix-tcp-proxy = stdenv.mkDerivation {
     name = "disnix-tcp-proxy";

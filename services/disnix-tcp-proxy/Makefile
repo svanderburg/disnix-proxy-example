@@ -1,19 +1,14 @@
-PREFIX = /usr/local
-
-SUBDIRS=src \
-	scripts
+CC = gcc
 
 all:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
+	$(CC) disnix-tcp-proxy.c -o disnix-tcp-proxy
+	$(CC) disnix-tcp-proxy-client.c -o disnix-tcp-proxy-client
+
+install: all
+	install -d -m755 $(PREFIX)/bin
+	install -m755 disnix-tcp-proxy $(PREFIX)/bin
+	install -m755 disnix-tcp-proxy-client $(PREFIX)/bin
 
 clean:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
-
-install:
-	for subdir in $(SUBDIRS); do \
-	    (cd $$subdir; $(MAKE) $@) || exit 1; \
-	done
+	rm -f *.o
+	rm -f disnix-tcp-proxy disnix-tcp-proxy-client

@@ -26,6 +26,34 @@ let
         extraParams = { inherit nix-processmgmt; };
       in
       {
+        simple_without_proxy = pkgs.lib.genAttrs systems (system:
+          let
+            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+              inherit nixpkgs system;
+            };
+          in
+          disnixos.buildManifest {
+            name = "disnix-proxy-example-without-proxy";
+            inherit tarball version extraParams;
+            servicesFile = "deployment-simple/DistributedDeployment/services-without-proxy.nix";
+            networkFile = "deployment-simple/DistributedDeployment/network.nix";
+            distributionFile = "deployment-simple/DistributedDeployment/distribution-without-proxy.nix";
+          });
+
+        simple_with_proxy = pkgs.lib.genAttrs systems (system:
+          let
+            disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+              inherit nixpkgs system;
+            };
+          in
+          disnixos.buildManifest {
+            name = "disnix-proxy-example-without-proxy";
+            inherit tarball version extraParams;
+            servicesFile = "deployment-simple/DistributedDeployment/services-with-proxy.nix";
+            networkFile = "deployment-simple/DistributedDeployment/network.nix";
+            distributionFile = "deployment-simple/DistributedDeployment/distribution-with-proxy.nix";
+          });
+
         without_proxy = pkgs.lib.genAttrs systems (system:
           let
             disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
@@ -93,6 +121,28 @@ let
         '';
       in
       {
+        simple_without_proxy =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.simple_without_proxy);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-without-proxy-test";
+            inherit tarball manifest;
+            networkFile = "deployment-simple/DistributedDeployment/network.nix";
+            testScript = testScript { inherit manifest; };
+          };
+
+        simple_with_proxy =
+          let
+            manifest = builtins.getAttr (builtins.currentSystem) (builds.simple_with_proxy);
+          in
+          disnixos.disnixTest {
+            name = "disnix-proxy-example-with-proxy-test";
+            inherit tarball manifest;
+            networkFile = "deployment-simple/DistributedDeployment/network.nix";
+            testScript = testScript { inherit manifest; };
+          };
+
         without_proxy =
           let
             manifest = builtins.getAttr (builtins.currentSystem) (builds.without_proxy);
