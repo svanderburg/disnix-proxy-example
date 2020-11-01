@@ -34,9 +34,11 @@ upgrade completely atomic.
 
 Usage
 =====
-This example comes in three variants. You can either deploy the server and
-client with or without proxy. There are three ways to try to deploy this
-example.
+This example comes in three variants: you just deploy only the server and
+client (without a proxy), include a proxy that monitors connections (and prevents
+the system from being upgraded if somebody is connected), and a variant in which
+the server is started on-demand as soon as somebody connects to it (this works
+only when using `systemd` as a process manager).
 
 Moreover, there are two kinds of deployment recipes containing all neccessary
 Disnix models, such as a services, infrastructure and distribution models
