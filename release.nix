@@ -103,16 +103,7 @@ let
           # Check whether a connection can be established between client and
           # server. This test should succeed.
 
-          hello_world_client_value = test2.succeed(
-              "${pkgs.libxml2}/bin/xmllint --xpath \"/manifest/services/service[name='hello_world_client']/pkg\" ${manifest}/manifest.xml"
-          )
-          hello_world_client = hello_world_client_value[5:-6]
-
-          result = test2.succeed(
-              "sleep 10; (echo 'hello'; sleep 10) | {}/bin/hello-world-client".format(
-                  hello_world_client[:-1]
-              )
-          )
+          result = test2.succeed("sleep 10; (echo 'hello'; sleep 10) | hello-world-client")
 
           if "Hello world" in result:
               print("Output contains: Hello world!")
