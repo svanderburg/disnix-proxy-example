@@ -1,8 +1,8 @@
-{stdenv, createManagedProcess, pkgconfig, systemd}:
+{stdenv, lib, createManagedProcess, pkgconfig, systemd}:
 {port, enableSystemdSocketActivation ? false}:
 
 let
-  makeFlags = "PREFIX=$out${stdenv.lib.optionalString enableSystemdSocketActivation " SYSTEMD_SOCKET_ACTIVATION=1"}";
+  makeFlags = "PREFIX=$out${lib.optionalString enableSystemdSocketActivation " SYSTEMD_SOCKET_ACTIVATION=1"}";
 
   hello-world-service = stdenv.mkDerivation {
     name = "hello-world-server";
@@ -24,7 +24,7 @@ createManagedProcess {
     };
   };
 
-  postInstall = stdenv.lib.optionalString enableSystemdSocketActivation ''
+  postInstall = lib.optionalString enableSystemdSocketActivation ''
     servicePath=$(echo $out/etc/systemd/system/*.service)
 
     cat > $out/etc/systemd/system/$(basename $servicePath .service).socket <<EOF
