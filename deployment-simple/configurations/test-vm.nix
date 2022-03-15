@@ -12,6 +12,8 @@
     };
   };
 
+  dysnomia.enableLegacyModules = false;
+
   networking.firewall.enable = false;
 
   environment = {
